@@ -43,7 +43,8 @@ Listening to events is as easy as registering them via
 ```js
 $.on
 ```
-inside the *onEnable* function. A sample is provided below.
+inside the *onEnable* function. A sample is provided below.  
+*Note: The event type is the name of the event class as specified in the bukkit specification.*
 ```js
 function onEnable() {
     $.on("BlockPlaceEvent", function(event) {
