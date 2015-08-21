@@ -53,3 +53,11 @@ function onEnable() {
 }
 ```
 We recommend you create a stand-alone function instead of using an anonymous function.
+
+## Commands
+The following commands are available:
+- *js help*, shows a list of available actions
+- *js list*, lists all loaded JavaScript plugins
+- *js load <plugins...>*, loads one (or more) plugins by filename. File must be in the ./jsplugins directory of the server.
+- *js unload <plugins...>*, unloads one (or more) plugins by filename.
+- *js reload [plugins...]*, reloads the specified or, if none specified, all plugins
