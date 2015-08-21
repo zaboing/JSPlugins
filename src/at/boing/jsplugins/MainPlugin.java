@@ -153,20 +153,8 @@ public class MainPlugin extends JavaPlugin {
     }
 
     private void reloadPlugin(CommandSender sender, String fileName) {
-        try {
-            File pluginFile = new File("jsplugins", fileName);
-            if (loadedPlugins.containsKey(pluginFile.getCanonicalPath())) {
-                Plugin plugin = loadedPlugins.get(pluginFile.getCanonicalPath());
-                getServer().getPluginManager().disablePlugin(plugin);
-                getServer().getPluginManager().enablePlugin(plugin);
-                sender.sendMessage("Reloaded " + fileName);
-            } else {
-                sender.sendMessage("Plugin " + fileName + " is not currently loaded.");
-            }
-        } catch (IOException e) {
-            sender.sendMessage("Unexpected exception reloading " + fileName + ": " + e);
-            e.printStackTrace();
-        }
+        unloadPlugin(sender, fileName);
+        loadPlugin(sender, fileName);
     }
 
     private void reloadPluginFullPath(CommandSender sender, String fullPath) {
