@@ -82,7 +82,7 @@ public class MainPlugin extends JavaPlugin {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
-        List<String> suggestions = new ArrayList<String>();
+        List<String> suggestions = new ArrayList<>();
 
         if (strings.length == 1) {
             for (String lvlOneCommand : lvlOneCommands) {
@@ -91,15 +91,18 @@ public class MainPlugin extends JavaPlugin {
                 }
             }
         } else if ("load".equalsIgnoreCase(strings[0])) {
-            for (File file : new File("jsplugins").listFiles()) {
-                try {
-                    if (file.isFile() && !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
-                        if (strings[1].isEmpty() || file.getName().toLowerCase().startsWith(strings[1].toLowerCase())) {
-                            suggestions.add(file.getName());
+            File[] contents = new File("jsplugins").listFiles();
+            if (contents != null) {
+                for (File file : contents) {
+                    try {
+                        if (file.isFile() && !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
+                            if (strings[1].isEmpty() || file.getName().toLowerCase().startsWith(strings[1].toLowerCase())) {
+                                suggestions.add(file.getName());
+                            }
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         } else if ("unload".equalsIgnoreCase(strings[0]) || "reload".equalsIgnoreCase(strings[0])) {

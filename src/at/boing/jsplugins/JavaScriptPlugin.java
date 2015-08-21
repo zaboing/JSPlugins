@@ -35,7 +35,9 @@ public class JavaScriptPlugin extends PluginBase {
         this.descriptionFile = new PluginDescriptionFile(plugin.getName(), plugin.getVersion(), plugin.getName());
         this.dataFolder = new File(new File("jsplugins", plugin.getName()), "data");
         if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
+            if (dataFolder.mkdirs()) {
+                getLogger().info("Created directory " + dataFolder.getPath());
+            }
         }
         this.loader = loader;
     }
@@ -125,6 +127,7 @@ public class JavaScriptPlugin extends PluginBase {
         getServer().getPluginManager().registerEvents(plugin, this);
     }
 
+    @SuppressWarnings("unused") // Suppress unused warnings: This method is supposed to be used in JavaScript plugins
     public void on(String eventName, Consumer<Event> callback) {
         Class<? extends Event> eventClass = findEventClass(eventName);
         if (eventClass == null) {
@@ -143,7 +146,9 @@ public class JavaScriptPlugin extends PluginBase {
         for (Package pack : Package.getPackages()) {
             if (pack.getName().startsWith(Event.class.getPackage().getName())) {
                 try {
-                    return (Class<? extends Event>) Class.forName(pack.getName() + "." + name);
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Event> found = (Class<? extends Event>) Class.forName(pack.getName() + "." + name);
+                    return found;
                 } catch (ClassNotFoundException e) {
                     // SILENTLY IGNORE AND CONTINUE SEARCHING
                 }
