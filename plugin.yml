@@ -1,0 +1,10 @@
+main: at.boing.jsplugins.MainPlugin
+name: JSPlugins
+version: Alpha
+
+commands:
+  load:
+    description: Loads the specified javascript plugin
+    usage: /<command> <file name>
+    permission: <plugin name>.basic
+    permission-message: You don't have <permission>
