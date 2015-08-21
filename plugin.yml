@@ -3,8 +3,8 @@ name: JSPlugins
 version: Alpha
 
 commands:
-  load:
-    description: Loads the specified javascript plugin
-    usage: /<command> <file name>
+  js:
+    description: Performs an action on javascript plugins
+    usage: /<command> [task]
     permission: <plugin name>.basic
     permission-message: You don't have <permission>

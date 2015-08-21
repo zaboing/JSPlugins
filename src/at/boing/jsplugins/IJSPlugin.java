@@ -1,6 +1,8 @@
 package at.boing.jsplugins;
 
-public interface IJSPlugin {
+import org.bukkit.event.Listener;
+
+public interface IJSPlugin extends Listener {
 
     void onEnable();
 

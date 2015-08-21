@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.Event;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginBase;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -15,11 +16,13 @@ import org.bukkit.plugin.PluginLoader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class JavaScriptPlugin extends PluginBase {
 
+    protected final Map<Class<? extends Event>, Set<Consumer<Event>>> listeners = new HashMap<>();
     JavaScriptLoader loader;
     private IJSPlugin plugin;
     private PluginDescriptionFile descriptionFile;
@@ -107,6 +110,7 @@ public class JavaScriptPlugin extends PluginBase {
     public void onDisable() {
         isEnabled = false;
         plugin.onDisable();
+        listeners.clear();
     }
 
     @Override
@@ -118,6 +122,34 @@ public class JavaScriptPlugin extends PluginBase {
     public void onEnable() {
         plugin.onEnable();
         isEnabled = true;
+        getServer().getPluginManager().registerEvents(plugin, this);
+    }
+
+    public void on(String eventName, Consumer<Event> callback) {
+        Class<? extends Event> eventClass = findEventClass(eventName);
+        if (eventClass == null) {
+            getLogger().warning("Couldn't find event type " + eventName);
+        } else {
+            Set<Consumer<Event>> callbacks = listeners.get(eventClass);
+            if (callbacks == null) {
+                callbacks = new HashSet<>();
+                listeners.put(eventClass, callbacks);
+            }
+            callbacks.add(callback);
+        }
+    }
+
+    private Class<? extends Event> findEventClass(String name) {
+        for (Package pack : Package.getPackages()) {
+            if (pack.getName().startsWith(Event.class.getPackage().getName())) {
+                try {
+                    return (Class<? extends Event>) Class.forName(pack.getName() + "." + name);
+                } catch (ClassNotFoundException e) {
+                    // SILENTLY IGNORE AND CONTINUE SEARCHING
+                }
+            }
+        }
+        return null;
     }
 
     @Override
