@@ -17,6 +17,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -78,8 +79,11 @@ public class JavaScriptLoader implements PluginLoader {
         for (Map.Entry<Class<? extends Event>, Set<Consumer<Event>>> entry : jsPlugin.listeners.entrySet()) {
             Class<? extends Event> eventClass = entry.getKey();
             for (Class executor = eventClass; Event.class.isAssignableFrom(executor); executor = executor.getSuperclass()) {
-                if (executor.getAnnotation(Deprecated.class) != null) {
-                    Warning warning = (Warning) executor.getAnnotation(Warning.class);
+                @SuppressWarnings("unchecked")
+                Annotation deprecated = executor.getAnnotation(Deprecated.class);
+                if (deprecated != null) {
+                    @SuppressWarnings("unchecked")
+                    Warning warning = (Warning)executor.getAnnotation(Warning.class);
                     Warning.WarningState warningState = this.server.getWarningState();
                     if (warningState.printFor(warning)) {
                         plugin.getLogger().log(Level.WARNING, String.format("\"%s\" has registered a listener for %s on method \"%s\", but the event is Deprecated. \"%s\"; please notify the authors %s.", new Object[]{plugin.getDescription().getFullName(), executor.getName(), "A js plugin", warning != null && warning.reason().length() != 0 ? warning.reason() : "Server performance will be affected", Arrays.toString(plugin.getDescription().getAuthors().toArray())}), warningState == Warning.WarningState.ON ? new AuthorNagException(null) : null);
