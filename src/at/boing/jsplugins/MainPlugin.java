@@ -9,10 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainPlugin extends JavaPlugin {
 
@@ -81,23 +78,24 @@ public class MainPlugin extends JavaPlugin {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
         List<String> suggestions = new ArrayList<>();
 
-        if (strings.length == 1) {
+        if (args.length == 1) {
             for (String lvlOneCommand : lvlOneCommands) {
-                if (strings[0].isEmpty() || lvlOneCommand.toLowerCase().startsWith(strings[0].toLowerCase())) {
+                if (args[0].isEmpty() || lvlOneCommand.toLowerCase().startsWith(args[0].toLowerCase())) {
                     suggestions.add(lvlOneCommand);
                 }
             }
-        } else if ("load".equalsIgnoreCase(strings[0])) {
+        } else if ("load".equalsIgnoreCase(args[0])) {
             File[] contents = new File("jsplugins").listFiles();
             if (contents != null) {
                 for (File file : contents) {
                     try {
                         if (file.isFile() && !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
-                            if (strings[1].isEmpty() || file.getName().toLowerCase().startsWith(strings[1].toLowerCase())) {
-                                suggestions.add(file.getName());
+                            String name = file.getName();
+                            if ((args[args.length - 1].isEmpty() || name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) && !isInArgs(args, name)) {
+                                suggestions.add(name);
                             }
                         }
                     } catch (IOException e) {
@@ -105,16 +103,35 @@ public class MainPlugin extends JavaPlugin {
                     }
                 }
             }
-        } else if ("unload".equalsIgnoreCase(strings[0]) || "reload".equalsIgnoreCase(strings[0])) {
+        } else if ("unload".equalsIgnoreCase(args[0]) || "reload".equalsIgnoreCase(args[0])) {
             for (String canonicalPath : loadedPlugins.keySet()) {
-                String fileName = new File(canonicalPath).getName();
-                if (strings[1].isEmpty() || fileName.toLowerCase().startsWith(strings[1].toLowerCase())) {
-                    suggestions.add(fileName);
+                String name = new File(canonicalPath).getName();
+                if ((args[args.length - 1].isEmpty() || name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) && !isInArgs(args, name)) {
+                    suggestions.add(name);
                 }
             }
         }
 
+        Collections.sort(suggestions);
+
         return suggestions;
+    }
+
+    /**
+     * Checks if the following file is in the argument array.
+     * Note: The first array entry will be ignored, since it will always be a lvlOneCommand.
+     *
+     * @param args    The arguments as by onTabComplete or onCommand.
+     * @param element The Element to be searched
+     * @return Whether the array from index [1]..[length - 1] contains the element
+     */
+    private boolean isInArgs(String[] args, String element) {
+        for (int i = 1; i < args.length - 1; ++i) {
+            if (args[i].equals(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void showUsage(CommandSender sender) {
