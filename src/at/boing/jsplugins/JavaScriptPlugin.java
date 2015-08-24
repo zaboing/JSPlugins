@@ -122,8 +122,8 @@ public class JavaScriptPlugin extends PluginBase {
 
     @Override
     public void onEnable() {
-        plugin.onEnable();
         isEnabled = true;
+        plugin.onEnable();
         getServer().getPluginManager().registerEvents(plugin, this);
     }
 
