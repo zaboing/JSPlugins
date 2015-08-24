@@ -46,6 +46,9 @@ public class JavaScriptLoader implements PluginLoader {
 
             Invocable invocable = (Invocable) scriptEngine;
             IJSPlugin plugin = invocable.getInterface(IJSPlugin.class);
+            if (plugin == null) {
+                throw new InvalidPluginException(String.format("Your JavaScript plugin is not valid. Please check for any missing / misspelled methods in %s.", file.getName()));
+            }
             JavaScriptPlugin pluginImpl = new JavaScriptPlugin(plugin, this);
             scriptEngine.put("$", pluginImpl);
             return pluginImpl;
