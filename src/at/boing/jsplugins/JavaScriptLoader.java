@@ -27,14 +27,13 @@ import java.util.regex.Pattern;
 public class JavaScriptLoader implements PluginLoader {
     public static final String JS_PATTERN = ".*\\.js$";
     Server server;
-    private ScriptEngine scriptEngine;
+    private ScriptEngineManager engineManager;
     private Logger logger;
 
     public JavaScriptLoader(Server server) {
         this.server = server;
         logger = server.getLogger();
-        ScriptEngineManager engineManager = new ScriptEngineManager();
-        scriptEngine = engineManager.getEngineByName("nashorn");
+        engineManager = new ScriptEngineManager();
     }
 
     @Override
@@ -42,6 +41,7 @@ public class JavaScriptLoader implements PluginLoader {
         try {
             logger.info("Loading " + file.getAbsolutePath());
 
+            ScriptEngine scriptEngine = engineManager.getEngineByName("nashorn");
             scriptEngine.eval(Files.toString(file, Charsets.UTF_8));
 
             Invocable invocable = (Invocable) scriptEngine;
