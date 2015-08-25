@@ -31,6 +31,7 @@ public class JavaScriptPlugin extends PluginBase {
     private boolean isEnabled;
 
     public JavaScriptPlugin(IJSPlugin plugin, JavaScriptLoader loader) {
+        this.loader = loader;
         this.plugin = plugin;
         this.descriptionFile = new PluginDescriptionFile(plugin.getName(), plugin.getVersion(), plugin.getName());
         this.dataFolder = new File(new File("jsplugins", plugin.getName()), "data");
@@ -39,7 +40,6 @@ public class JavaScriptPlugin extends PluginBase {
                 getLogger().info("Created directory " + dataFolder.getPath());
             }
         }
-        this.loader = loader;
     }
 
 
