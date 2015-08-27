@@ -24,7 +24,10 @@ public class MainPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getConfig();
+        getLogger().info("Disabling all plugins...");
+        for (String fullPath : loadedPlugins.keySet()) {
+            unloadPlugin(getServer().getConsoleSender(), new File(fullPath).getName());
+        }
     }
 
     @Override
