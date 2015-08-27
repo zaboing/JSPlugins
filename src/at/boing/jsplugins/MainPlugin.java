@@ -159,6 +159,7 @@ public class MainPlugin extends JavaPlugin {
                 Plugin plugin = getServer().getPluginManager().loadPlugin(pluginFile);
                 getServer().getPluginManager().enablePlugin(plugin);
                 loadedPlugins.put(pluginFile.getCanonicalPath(), (JavaScriptPlugin) plugin);
+                sender.sendMessage("Loaded " + fileName);
             } catch (InvalidPluginException | InvalidDescriptionException e) {
                 sender.sendMessage("Ran into some trouble loading " + fileName + ": " + e.getMessage());
                 getLogger().info("Could not load " + fileName + ": " + e);
