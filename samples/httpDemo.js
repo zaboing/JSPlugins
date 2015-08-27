@@ -1,4 +1,4 @@
-load("jsplugins/modules/HTTP.js");
+load("modules/HTTP.js");
 
 var endpoint = new HTTPEndpoint("http://httpbin.org/ip");
 

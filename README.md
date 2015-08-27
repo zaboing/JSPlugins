@@ -57,7 +57,7 @@ function onEnable() {
 We provide optional modules that contain convenience classes and methods.  
 In order to include a module, place it inside the jsplugins/modules directory and include it as such:
 ```js
-load("jsplugins/modules/<name>")
+load("modules/<name>")
 ```
 An example using the HTTP module is provided in the samples directory.
 

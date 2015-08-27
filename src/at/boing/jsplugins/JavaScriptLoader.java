@@ -2,6 +2,7 @@ package at.boing.jsplugins;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Server;
 import org.bukkit.Warning;
@@ -13,7 +14,6 @@ import org.bukkit.plugin.*;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
@@ -26,22 +26,34 @@ import java.util.regex.Pattern;
 
 public class JavaScriptLoader implements PluginLoader {
     public static final String JS_PATTERN = ".*\\.js$";
+
+    /**
+     * This string is appended before every single JavaScript plugin.
+     * There is no native way in Nashorn to set the directory for load calls; therefore, we have to use this workaround and overload the default load()
+     * The default user.dir directory will be set in the engine arguments.
+     */
+    private static final String PREAMBLE = "var oldLoad = load;\n" +
+            "\n" +
+            "load = function(path) {\n" +
+            "\toldLoad(\"jsplugins/\" + path);\n" +
+            "}\n";
+
     Server server;
-    private ScriptEngineManager engineManager;
+    private NashornScriptEngineFactory engineFactory;
     private Logger logger;
 
     public JavaScriptLoader(Server server) {
         this.server = server;
         logger = server.getLogger();
-        engineManager = new ScriptEngineManager();
+        engineFactory = new NashornScriptEngineFactory();
     }
 
     @Override
     public Plugin loadPlugin(File file) throws InvalidPluginException, UnknownDependencyException {
         try {
             logger.info("Loading " + file.getAbsolutePath());
-
-            ScriptEngine scriptEngine = engineManager.getEngineByName("nashorn");
+            ScriptEngine scriptEngine = engineFactory.getScriptEngine(new String[]{"-Duser.dir=" + file.getParent()});
+            scriptEngine.eval(PREAMBLE);
             scriptEngine.eval(Files.toString(file, Charsets.UTF_8));
 
             Invocable invocable = (Invocable) scriptEngine;
@@ -51,6 +63,7 @@ public class JavaScriptLoader implements PluginLoader {
             }
             JavaScriptPlugin pluginImpl = new JavaScriptPlugin(plugin, this);
             scriptEngine.put("$", pluginImpl);
+
             return pluginImpl;
         } catch (ScriptException | IOException | ClassCastException e) {
             throw new InvalidPluginException(e);
