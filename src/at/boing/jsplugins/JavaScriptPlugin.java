@@ -1,6 +1,7 @@
 package at.boing.jsplugins;
 
 import com.avaje.ebean.EbeanServer;
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,8 +17,11 @@ import org.bukkit.plugin.PluginLoader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JavaScriptPlugin extends PluginBase {
@@ -27,6 +31,7 @@ public class JavaScriptPlugin extends PluginBase {
     private IJSPlugin plugin;
     private PluginDescriptionFile descriptionFile;
     private File dataFolder;
+    private File configFile;
     private FileConfiguration config;
     private boolean isEnabled;
 
@@ -34,12 +39,13 @@ public class JavaScriptPlugin extends PluginBase {
         this.loader = loader;
         this.plugin = plugin;
         this.descriptionFile = new PluginDescriptionFile(plugin.getName(), plugin.getVersion(), plugin.getName());
-        this.dataFolder = new File(new File("jsplugins", plugin.getName()), "data");
+        this.dataFolder = new File("jsplugins", plugin.getName());
         if (!dataFolder.exists()) {
             if (dataFolder.mkdirs()) {
                 getLogger().info("Created directory " + dataFolder.getPath());
             }
         }
+        this.configFile = new File(getDataFolder(), "config.yml");
     }
 
 
@@ -68,22 +74,47 @@ public class JavaScriptPlugin extends PluginBase {
 
     @Override
     public void saveConfig() {
-
+        try {
+            getConfig().save(configFile);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not save config to " + this.configFile, e);
+        }
     }
 
     @Override
     public void saveDefaultConfig() {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void saveResource(String s, boolean b) {
+        throw new NotImplementedException();
+    }
 
+    @SuppressWarnings("unused") // Suppress unused warnings: This method is being used in JavaScript plugins
+    public String loadObject(String name) {
+        try {
+            return new String(Files.readAllBytes(getDataFolder().toPath().resolve(name)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not load object " + name, e);
+            return "{}";
+        }
+    }
+
+    @SuppressWarnings("unused") // Suppress unused warnings: This method is being used in JavaScript plugins
+    public boolean saveObject(String name, String jsonRepresentation) {
+        try {
+            Files.write(getDataFolder().toPath().resolve(name), jsonRepresentation.getBytes(StandardCharsets.UTF_8));
+            return true;
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not save object " + name, e);
+            return false;
+        }
     }
 
     @Override
     public void reloadConfig() {
-        config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
+        config = YamlConfiguration.loadConfiguration(configFile);
         try {
             config.load(new File(getDataFolder(), "default_config.yml"));
         } catch (IOException e) {
@@ -127,7 +158,7 @@ public class JavaScriptPlugin extends PluginBase {
         getServer().getPluginManager().registerEvents(plugin, this);
     }
 
-    @SuppressWarnings("unused") // Suppress unused warnings: This method is supposed to be used in JavaScript plugins
+    @SuppressWarnings("unused") // Suppress unused warnings: This method is being used in JavaScript plugins
     public void on(String eventName, Consumer<Event> callback) {
         Class<? extends Event> eventClass = findEventClass(eventName);
         if (eventClass == null) {

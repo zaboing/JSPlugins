@@ -52,7 +52,7 @@ public class JavaScriptLoader implements PluginLoader {
     public Plugin loadPlugin(File file) throws InvalidPluginException, UnknownDependencyException {
         try {
             logger.info("Loading " + file.getAbsolutePath());
-            ScriptEngine scriptEngine = engineFactory.getScriptEngine(new String[]{"-Duser.dir=" + file.getParent()});
+            ScriptEngine scriptEngine = engineFactory.getScriptEngine();
             scriptEngine.eval(PREAMBLE);
             scriptEngine.eval(Files.toString(file, Charsets.UTF_8));
 
