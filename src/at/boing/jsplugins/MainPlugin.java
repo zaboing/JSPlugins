@@ -160,6 +160,11 @@ public class MainPlugin extends JavaPlugin {
             }
             try {
                 Plugin plugin = getServer().getPluginManager().loadPlugin(pluginFile);
+                if (plugin == null) {
+                    sender.sendMessage("No loader found for " + fileName);
+                    getLogger().info("Failed to load " + fileName);
+                    return;
+                }
                 getServer().getPluginManager().enablePlugin(plugin);
                 loadedPlugins.put(pluginFile.getCanonicalPath(), (JavaScriptPlugin) plugin);
                 sender.sendMessage("Loaded " + fileName);
