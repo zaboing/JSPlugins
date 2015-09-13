@@ -25,6 +25,7 @@ HTTPRequest.prototype.sendTo = function(httpEndpoint, successCallback) {
 	connection.setUseCaches(false);
 	connection.setDoInput(true);
 	connection.setDoOutput(true);
+	connection.setRequestProperty("Accept-Encoding", "gzip, deflate, identity")
 
 	if (this.data !== null) {
 		connection.setRequestProperty("Content-Type", this.contentType);
@@ -35,6 +36,13 @@ HTTPRequest.prototype.sendTo = function(httpEndpoint, successCallback) {
 	}
 	$.getServer().getScheduler().runTaskAsynchronously($, function() {
 		var input = connection.getInputStream();
+		if ("gzip".equals(connection.getContentEncoding())) {
+			input = new java.util.zip.GZIPInputStream(input);
+			$.getLogger().info("using gzip");
+		} else if ("deflate".equals(connection.getContentEncoding())) {
+			input = new java.util.zip.InflaterInputStream(input);
+			$.getLogger().info("using deflate");
+		}
 		var output = new java.io.ByteArrayOutputStream();
 		var i;
 		while ((i = input.read()) != -1) {
@@ -43,8 +51,10 @@ HTTPRequest.prototype.sendTo = function(httpEndpoint, successCallback) {
 		input.close();
 		output.close();
 		connection.disconnect();
-		$.getServer().getScheduler().runTask($, function() {
-			successCallback(output.toByteArray());
-		});
+		if (successCallback !== null && successCallback !== undefined) {
+			$.getServer().getScheduler().runTask($, function() {
+				successCallback(output.toByteArray());
+			});
+		}
 	});
 }
