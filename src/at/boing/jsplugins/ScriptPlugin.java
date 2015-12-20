@@ -24,10 +24,10 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class JavaScriptPlugin extends PluginBase {
+public class ScriptPlugin extends PluginBase {
 
     protected final Map<Class<? extends Event>, Set<Consumer<Event>>> listeners = new HashMap<>();
-    JavaScriptLoader loader;
+    AbstractScriptLoader loader;
     private IJSPlugin plugin;
     private PluginDescriptionFile descriptionFile;
     private File dataFolder;
@@ -35,7 +35,7 @@ public class JavaScriptPlugin extends PluginBase {
     private FileConfiguration config;
     private boolean isEnabled;
 
-    public JavaScriptPlugin(IJSPlugin plugin, JavaScriptLoader loader) {
+    public ScriptPlugin(IJSPlugin plugin, AbstractScriptLoader loader) {
         this.loader = loader;
         this.plugin = plugin;
         this.descriptionFile = new PluginDescriptionFile(plugin.getName(), plugin.getVersion(), plugin.getName());

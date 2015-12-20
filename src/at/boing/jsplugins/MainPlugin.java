@@ -14,7 +14,7 @@ import java.util.*;
 public class MainPlugin extends JavaPlugin {
 
     private static final String[] lvlOneCommands = {"help", "list", "load", "unload", "reload"};
-    private final Map<String, JavaScriptPlugin> loadedPlugins = new HashMap<>();
+    private final Map<String, ScriptPlugin> loadedPlugins = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -148,7 +148,7 @@ public class MainPlugin extends JavaPlugin {
 
     private void listLoadedScripts(CommandSender sender) {
         sender.sendMessage("Currently loaded:");
-        for (Map.Entry<String, JavaScriptPlugin> entry : loadedPlugins.entrySet()) {
+        for (Map.Entry<String, ScriptPlugin> entry : loadedPlugins.entrySet()) {
             sender.sendMessage("From file " + new File(entry.getKey()).getName() + ": " + entry.getValue().getName() + " v" + entry.getValue().getDescription().getVersion());
         }
     }
@@ -168,7 +168,7 @@ public class MainPlugin extends JavaPlugin {
                     return;
                 }
                 getServer().getPluginManager().enablePlugin(plugin);
-                loadedPlugins.put(pluginFile.getCanonicalPath(), (JavaScriptPlugin) plugin);
+                loadedPlugins.put(pluginFile.getCanonicalPath(), (ScriptPlugin) plugin);
                 sender.sendMessage("Loaded " + fileName);
             } catch (InvalidPluginException | InvalidDescriptionException e) {
                 sender.sendMessage("Ran into some trouble loading " + fileName + ": " + e.getMessage());
