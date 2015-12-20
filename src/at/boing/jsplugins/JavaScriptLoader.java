@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class JavaScriptLoader implements PluginLoader {
-    public static final String JS_PATTERN = ".*\\.js$";
+    public static final Pattern FILE_PATTERN = Pattern.compile(".*\\.js$");
 
     /**
      * This string is appended before every single JavaScript plugin.
@@ -78,7 +78,7 @@ public class JavaScriptLoader implements PluginLoader {
 
     @Override
     public Pattern[] getPluginFileFilters() {
-        return new Pattern[]{Pattern.compile(JS_PATTERN)};
+        return new Pattern[]{FILE_PATTERN};
     }
 
     @Override

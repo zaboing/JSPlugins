@@ -95,7 +95,9 @@ public class MainPlugin extends JavaPlugin {
             if (contents != null) {
                 for (File file : contents) {
                     try {
-                        if (file.isFile() && !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
+                        if (file.isFile() &&
+                                JavaScriptLoader.FILE_PATTERN.matcher(file.getName()).matches() &&
+                                !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
                             String name = file.getName();
                             if ((args[args.length - 1].isEmpty() || name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) && !isInArgs(args, name)) {
                                 suggestions.add(name);
