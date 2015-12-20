@@ -5,21 +5,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class MainPlugin extends JavaPlugin {
 
     private static final String[] lvlOneCommands = {"help", "list", "load", "unload", "reload"};
     private final Map<String, ScriptPlugin> loadedPlugins = new HashMap<>();
 
+    private final List<Pattern> patterns = new ArrayList<>();
+
     @Override
     public void onEnable() {
         loadedPlugins.clear();
-        getServer().getPluginManager().registerInterface(JavaScriptLoader.class);
+        PluginManager pluginManager = getServer().getPluginManager();
+        pluginManager.registerInterface(JavaScriptLoader.class);
+        patterns.add(JavaScriptLoader.FILE_PATTERN);
+        pluginManager.registerInterface(CoffeeScriptLoader.class);
+        patterns.add(CoffeeScriptLoader.FILE_PATTERN);
     }
 
     @Override
@@ -28,6 +36,7 @@ public class MainPlugin extends JavaPlugin {
         for (String fullPath : loadedPlugins.keySet()) {
             unloadPlugin(getServer().getConsoleSender(), new File(fullPath).getName());
         }
+        patterns.clear();
     }
 
     @Override
@@ -95,11 +104,11 @@ public class MainPlugin extends JavaPlugin {
             if (contents != null) {
                 for (File file : contents) {
                     try {
-                        if (file.isFile() &&
-                                JavaScriptLoader.FILE_PATTERN.matcher(file.getName()).matches() &&
-                                !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
+                        if (file.isFile() && !loadedPlugins.keySet().contains(file.getCanonicalPath())) {
                             String name = file.getName();
-                            if ((args[args.length - 1].isEmpty() || name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) && !isInArgs(args, name)) {
+                            if ((args[args.length - 1].isEmpty() ||
+                                    name.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) && !isInArgs(args, name) &&
+                                    isScriptExtension(name)) {
                                 suggestions.add(name);
                             }
                         }
@@ -120,6 +129,10 @@ public class MainPlugin extends JavaPlugin {
         Collections.sort(suggestions);
 
         return suggestions;
+    }
+
+    private boolean isScriptExtension(String fileName) {
+        return patterns.stream().filter(p -> p.matcher(fileName).matches()).findFirst().isPresent();
     }
 
     /**
